@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_USER=sentiment_user
+      - DB_PASSWORD=sentiment_password
+      - DB_NAME=sentiment_analysis
+      - DB_PORT=3306
+      - DEBUG=True
+      - PORT=5000
+      - HOST=0.0.0.0
+      - MODEL_PATH=/app/data/sentiment_model.pkl
+      - RETRAIN_INTERVAL_DAYS=7
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=sentiment_analysis
+      - MYSQL_USER=sentiment_user
+      - MYSQL_PASSWORD=sentiment_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql_data:
